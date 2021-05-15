@@ -14,32 +14,27 @@ const create = async (req, res) => {
   });
 };
 
-// const getOne = (req, res) => {
-
-//   connectToDatabase().then(() => {
-//     Note.findById(event.pathParameters.id)
-//       .then(note =>
-//         callback(null, {
-//           statusCode: 200,
-//           body: JSON.stringify(note),
-//         })
-//       )
-//       .catch(err =>
-//         callback(null, {
-//           statusCode: err.statusCode || 500,
-//           headers: { "Content-Type": "text/plain" },
-//           body: "Could not fetch the note.",
-//         })
-//       );
-//   });
-// };
-
 const getAll = async (req, res) => {
-  console.log("Inside getAll");
-  await connectToDatabase().then(() => {
+  await connectToDatabase().then(async () => {
+    const count = await Note.countDocuments();
     Note.find()
-      .then(notes => callback(res, 200, notes))
+      .then(notes => callback(res, 200, { items: notes, total: count }))
       .catch(err => callback(res, 400, { message: "Could not fetch the notes.", error: err }));
+  });
+};
+
+const getSortedData = async (req, res) => {
+  const { order = "", filter = "" } = req.params;
+  await connectToDatabase().then(async () => {
+    if (order && filter) {
+      const count = await Note.countDocuments();
+      Note.find()
+        .sort({ [filter]: order })
+        .then(notes => callback(res, 200, { items: notes, total: count }))
+        .catch(err => callback(res, 400, { message: "Could not fetch the notes.", error: err }));
+    } else {
+      callback(res, 400, { message: "Missing params" });
+    }
   });
 };
 
@@ -51,8 +46,47 @@ const deleteAll = (req, res) => {
   });
 };
 
+const search = async (req, res) => {
+  const { schema = [], filter = "", query = "" } = req.body || {};
+  if (schema.length < 0 || !filter || !query) {
+    callback(res, 400, { message: "Missing params" });
+  }
+
+  const expression = schema.map(item => {
+    return { [item]: { $regex: ".*" + query + ".*", $options: "i" } };
+  });
+
+  await connectToDatabase().then(() => {
+    Note.find({ $or: expression })
+      .then(notes => callback(res, 200, { items: notes, total: notes.length }))
+      .catch(err => callback(res, 400, { message: "Could not fetch the notes.", error: err }));
+  });
+};
+
+const getPaginatedData = async (req, res) => {
+  let { offSet, limit } = req.params;
+  offSet = parseInt(offSet) || 0;
+  limit = parseInt(limit) || 10;
+  console.log("getPaginatedData: ", offSet, limit);
+  if (offSet < 0 || limit < 0) {
+    callback(res, 400, { message: "Missing params" });
+  } else {
+    await connectToDatabase().then(async () => {
+      const count = await Note.countDocuments();
+      Note.find({})
+        .skip(offSet)
+        .limit(limit)
+        .then(notes => callback(res, 200, { items: notes, total: count }))
+        .catch(err => callback(res, 400, { message: "Could not fetch the notes.", error: err }));
+    });
+  }
+};
+
 module.exports = {
   deleteAll,
   create,
   getAll,
+  search,
+  getSortedData,
+  getPaginatedData,
 };

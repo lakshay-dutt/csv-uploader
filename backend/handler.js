@@ -5,5 +5,6 @@ const server = awsServerlessExpress.createServer(app);
 
 exports.handler = (event, context) => {
   console.log("Inside handler");
+
   return awsServerlessExpress.proxy(server, event, context);
 };

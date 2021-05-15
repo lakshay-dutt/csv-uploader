@@ -5,7 +5,6 @@ mongoose.Promise = global.Promise;
 
 let isConnected;
 const connectToDatabase = () => {
-  console.log(process.env);
   if (isConnected) {
     console.log("=> using existing database connection");
     return Promise.resolve();
