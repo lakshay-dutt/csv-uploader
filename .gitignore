@@ -24,3 +24,4 @@ package-lock.json
 
 backend/.serverless
 backend/node_modules
+backend/.env
