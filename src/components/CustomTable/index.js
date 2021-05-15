@@ -1,15 +1,16 @@
 import React, { Fragment, useState } from "react";
+import CsvDownloader from "../CsvDownloader";
 import Table from "../Table";
-import DATA from "../../constant/data.json";
 
 const CustomTable = () => {
   const rowCount = [5, 10, 20, 30, 40, 50];
-  const [data, setData] = useState(DATA);
+  const table_data = JSON.parse(localStorage.getItem("table_data")) || {};
+  const [data, setData] = useState(table_data);
   const [search, setSearch] = useState(null);
   const [selectedSearchFilter, setSelectedSearchFilter] = useState(-1);
   const [selectedRowCount, setSelectedRowCount] = useState(0);
 
-  return data ? (
+  return data && data.labels && data.labels.length > 0 && data.items && data.items.length > 0 ? (
     <Fragment>
       <div className="antialiased font-sans bg-gray-300">
         <div className="container mx-auto px-4 sm:px-8">
@@ -19,11 +20,11 @@ const CustomTable = () => {
             </div>
             <div className="my-2 flex sm:flex-row flex-col">
               <div className="flex flex-row mb-1 sm:mb-0">
-                <div className="relative">
+                {/* <div className="relative">
                   <button className="w-full flex justify-center p-3 border border-transparent text-lg  font-normal rounded-md text-white bg-primary hover:bg-primary-800 focus:outline-none focus:ring-blue transition duration-150 ease-in-out">
                     Export
                   </button>
-                </div>
+                </div> */}
                 <div className="relative">
                   <select
                     className="appearance-none h-full rounded-l border block appearance-none w-full bg-white border-gray-400 text-gray-700 py-2 px-4 pr-8 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
@@ -94,6 +95,18 @@ const CustomTable = () => {
                   <div className="inline-flex mt-2 xs:mt-0">
                     <button className="text-sm bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-l">Prev</button>
                     <button className="text-sm bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-r">Next</button>
+                  </div>
+                  <div className="inline-flex mt-2 xs:mt-0">
+                    <CsvDownloader />
+                    <button
+                      className="btn p-2 border-2 border-green-400 rounded-lg text-white bg-green-400 my-2 mx-2 px-4 font-semibold"
+                      onClick={() => {
+                        localStorage.setItem("table_data", JSON.stringify({}));
+                        setData({});
+                      }}
+                    >
+                      Reset
+                    </button>
                   </div>
                 </div>
               </div>
