@@ -16,7 +16,7 @@ export const getPaginatedData = (limit, offset = 0) => {
 export const postTableData = items => {
   return instance({
     method: "post",
-    url: `/`,
+    url: `/add`,
     data: items,
   });
 };

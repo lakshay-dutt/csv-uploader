@@ -8,7 +8,7 @@ routes.get("/", getAll);
 routes.get("/:order/:filter", getSortedData);
 routes.get("/paginate/:offSet/:limit", getPaginatedData);
 
-routes.post("/", create);
+routes.post("/add", create);
 routes.post("/search", search);
 routes.delete("/", deleteAll);
 module.exports = {
