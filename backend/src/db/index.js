@@ -10,7 +10,7 @@ routes.get("/paginate/:offSet/:limit", getPaginatedData);
 
 routes.post("/add", create);
 routes.post("/search", search);
-routes.delete("/", deleteAll);
+routes.delete("/clear", deleteAll);
 module.exports = {
   routes,
 };

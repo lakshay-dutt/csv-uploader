@@ -42,6 +42,13 @@ export const getSearchData = payload => {
   });
 };
 
+export const clearData = () => {
+  return instance({
+    method: "delete",
+    url: `/clear`,
+  });
+};
+
 // {
 //     "schema": ["title", "description", "age"],
 //     "filter": "title",

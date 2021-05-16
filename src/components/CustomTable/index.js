@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from "react";
 import { connect } from "react-redux";
-import { getPaginatedData, getSearchData } from "../../api";
+import { clearData, getPaginatedData, getSearchData } from "../../api";
 import { fetchTable, resetTable } from "../../redux/helpers";
 import { fetchLabels } from "../../util";
 import CsvDownloader from "../CsvDownloader";
@@ -134,7 +134,7 @@ const CustomTable = ({ table }) => {
                     <button
                       className="btn p-2 border-2 border-green-400 rounded-lg text-white bg-green-400 my-2 mx-2 px-4 font-semibold"
                       onClick={() => {
-                        resetTable();
+                        clearData().then(() => resetTable());
                       }}
                     >
                       Reset
