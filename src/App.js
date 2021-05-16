@@ -12,6 +12,7 @@ function App({ table }) {
         const labels = fetchLabels(data.items);
         fetchTable({ labels, items: data.items, total: data.total });
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
     <Fragment>
