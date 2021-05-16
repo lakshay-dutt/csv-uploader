@@ -17,6 +17,7 @@ const create = async (req, res) => {
 const getAll = async (req, res) => {
   await connectToDatabase().then(async () => {
     const count = await Note.countDocuments();
+
     Note.find()
       .then(notes => callback(res, 200, { items: notes, total: count }))
       .catch(err => callback(res, 400, { message: "Could not fetch the notes.", error: err }));

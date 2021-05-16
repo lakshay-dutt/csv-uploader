@@ -1,16 +1,19 @@
 import React, { Fragment, useState } from "react";
+import { connect } from "react-redux";
+import { getPaginatedData, getSearchData } from "../../api";
+import { fetchTable, resetTable } from "../../redux/helpers";
+import { fetchLabels } from "../../util";
 import CsvDownloader from "../CsvDownloader";
 import Table from "../Table";
 
-const CustomTable = () => {
+const CustomTable = ({ table }) => {
   const rowCount = [5, 10, 20, 30, 40, 50];
-  const table_data = JSON.parse(localStorage.getItem("table_data")) || {};
-  const [data, setData] = useState(table_data);
+
   const [search, setSearch] = useState(null);
   const [selectedSearchFilter, setSelectedSearchFilter] = useState(-1);
   const [selectedRowCount, setSelectedRowCount] = useState(0);
 
-  return data && data.labels && data.labels.length > 0 && data.items && data.items.length > 0 ? (
+  return table && table.labels && table.labels.length > 0 && table.items && table.items.length > 0 ? (
     <Fragment>
       <div className="antialiased font-sans bg-gray-300">
         <div className="container mx-auto px-4 sm:px-8">
@@ -32,6 +35,10 @@ const CustomTable = () => {
                     onChange={e => {
                       const { value } = (e || {}).currentTarget || {};
                       setSelectedRowCount(value);
+                      getPaginatedData(value).then(({ data }) => {
+                        const labels = fetchLabels(data.items);
+                        fetchTable({ labels, items: data.items });
+                      });
                     }}
                   >
                     {rowCount.map((row, i) => (
@@ -58,7 +65,7 @@ const CustomTable = () => {
                     <option value={null} selected>
                       Select Search Filter
                     </option>
-                    {data.labels.map((label, i) => (
+                    {table.labels.map((label, i) => (
                       <Fragment key={i + label}>
                         <option value={label} selected={i === selectedSearchFilter}>
                           {label}
@@ -81,28 +88,53 @@ const CustomTable = () => {
                 </span>
                 <input
                   placeholder="Search"
-                  className="appearance-none rounded-r rounded-l sm:rounded-l-none border border-gray-400 border-b block pl-8 pr-6 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700 focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none"
+                  className="appearance-none rounded-r rounded-l sm:rounded-l-none border border-gray-400 border-b block pl-8 pr-6 py-6 w-full bg-white text-sm placeholder-gray-400 text-gray-700 focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none"
+                  onChange={e => {
+                    const temp = (e.target || {}).value;
+                    setSearch(temp);
+                  }}
                 />
+              </div>
+              <div className="relative">
+                <button
+                  className="btn p-2 border-2 border-blue-600 rounded-lg text-white bg-blue-600 my-2 mx-2 px-4 font-semibold"
+                  onClick={() => {
+                    if (search && selectedSearchFilter) {
+                      const payload = {
+                        schema: [...table.labels],
+                        filter: selectedSearchFilter,
+                        query: search,
+                      };
+                      getSearchData(payload).then(({ data }) => {
+                        const labels = fetchLabels(data.items);
+                        fetchTable({ labels, items: data.items });
+                      });
+                    }
+                  }}
+                >
+                  Search
+                </button>
               </div>
             </div>
             <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
               <div className="inline-block min-w-full shadow rounded-lg overflow-hidden">
-                <Table data={data} rowCount={rowCount[selectedRowCount]} />
+                <Table data={table} rowCount={rowCount[selectedRowCount]} />
                 <div className="px-5 py-5 bg-white border-t flex flex-col xs:flex-row items-center xs:justify-between">
-                  <span className="text-xs xs:text-sm text-gray-900">
-                    Showing 1 to {Math.floor(data.items.length / rowCount[selectedRowCount])} of {data.items.length} Entries
-                  </span>
-                  <div className="inline-flex mt-2 xs:mt-0">
-                    <button className="text-sm bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-l">Prev</button>
-                    <button className="text-sm bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-r">Next</button>
+                  <div className="hidden">
+                    <span className="text-xs xs:text-sm text-gray-900">
+                      Showing 1 to {Math.floor(table.items.length / rowCount[selectedRowCount])} of {table.items.length} Entries
+                    </span>
+                    <div className="inline-flex mt-2 xs:mt-0">
+                      <button className="text-sm bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-l">Prev</button>
+                      <button className="text-sm bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-r">Next</button>
+                    </div>
                   </div>
                   <div className="inline-flex mt-2 xs:mt-0">
                     <CsvDownloader />
                     <button
                       className="btn p-2 border-2 border-green-400 rounded-lg text-white bg-green-400 my-2 mx-2 px-4 font-semibold"
                       onClick={() => {
-                        localStorage.setItem("table_data", JSON.stringify({}));
-                        setData({});
+                        resetTable();
                       }}
                     >
                       Reset
@@ -119,4 +151,10 @@ const CustomTable = () => {
     <Fragment />
   );
 };
-export default CustomTable;
+
+function mapStateToProps(state) {
+  const { table = {} } = state;
+  return { table };
+}
+
+export default connect(mapStateToProps, {})(CustomTable);

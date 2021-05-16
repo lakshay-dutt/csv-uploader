@@ -48,3 +48,13 @@ export const JSONToCSVConvertor = (data = null, title = "", showLabel = true) =>
 
   return { uri, fileName: fileName + ".csv" };
 };
+
+export const fetchLabels = items => {
+  let labels = {};
+  items.map(item => {
+    labels = { ...labels, ...item };
+    return null;
+  });
+  labels = Object.keys(labels).filter(key => key[0] !== "_");
+  return labels;
+};
