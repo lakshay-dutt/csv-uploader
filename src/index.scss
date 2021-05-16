@@ -15,3 +15,6 @@ code {
 .mh-480 {
   height: 480px;
 }
+button:disabled {
+  cursor: not-allowed;
+}

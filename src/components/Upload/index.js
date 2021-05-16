@@ -35,20 +35,22 @@ const Upload = () => {
       });
       /* Update state */
       const resp = { data: data, cols: make_cols(ws["!ref"]) };
-
       response.labels = resp.data[0];
-      [...response.labels].forEach((label, i) => {
-        const temp = resp.data[i + 1];
+      [...resp.data].slice(1, resp.data.length).forEach((item, i) => {
         const record = {};
-        [...response.labels].forEach((labelItem, idx) => {
-          Object.assign(record, { [labelItem]: temp[idx] });
+        [...response.labels].forEach((label, idx) => {
+          Object.assign(record, { [label]: item[idx] });
         });
+        if (i > 199) return false;
         response.items.push(record);
       });
+      if (response.items.length > 0) {
+        postTableData(response.items).then(re => {
+          fetchTable({ labels: response.labels, items: re.data.items, total: re.data.total || re.data.items.length });
+        });
+      }
     };
-    await postTableData(response.items).then(_ => {
-      fetchTable(response);
-    });
+
     if (rABS) reader.readAsBinaryString(file);
     else reader.readAsArrayBuffer(file);
   };

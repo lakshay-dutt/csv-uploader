@@ -1,6 +1,6 @@
 import axios from "axios";
-const BASE_URL = "https://2akek6xvsc.execute-api.ap-south-1.amazonaws.com/dev";
-// const BASE_URL = "http://localhost:3000/dev";
+// const BASE_URL = "https://2akek6xvsc.execute-api.ap-south-1.amazonaws.com/dev";
+const BASE_URL = "http://localhost:3000/dev";
 
 const instance = axios.create({
   baseURL: BASE_URL,
@@ -9,11 +9,11 @@ const instance = axios.create({
 export const getPaginatedData = (limit, offset = 0) => {
   return instance({
     method: "get",
-    url: `/${offset}/${limit}`,
+    url: `/paginate/${offset}/${limit}`,
   });
 };
 
-export const postTableData = items => {
+export const postTableData = (items = []) => {
   return instance({
     method: "post",
     url: `/add`,

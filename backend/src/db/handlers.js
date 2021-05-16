@@ -7,8 +7,8 @@ const callback = (res, statusCode, response) => res.status(statusCode).json(resp
 const create = async (req, res) => {
   connectToDatabase().then(() => {
     Note.insertMany(req.body)
-      .then(note => {
-        return callback(res, 200, { message: "Success", data: note });
+      .then(notes => {
+        return callback(res, 200, { message: "Success", items: notes, total: notes.length });
       })
       .catch(err => callback(res, 400, { message: "Error", error: err }));
   });
@@ -42,7 +42,7 @@ const getSortedData = async (req, res) => {
 const deleteAll = (req, res) => {
   connectToDatabase().then(() => {
     Note.deleteMany()
-      .then(note => callback(res, 200, { message: "Collection Deleted", data: note }))
+      .then(note => callback(res, 200, { message: "Collection Deleted", items: [], total: 0 }))
       .catch(err => callback(res, 400, { message: "Error", error: err }));
   });
 };
@@ -74,8 +74,9 @@ const getPaginatedData = async (req, res) => {
   } else {
     await connectToDatabase().then(async () => {
       const count = await Note.countDocuments();
+      console.log("Lakshay: ", count);
       Note.find({})
-        .skip(offSet)
+        .skip(offSet * limit)
         .limit(limit)
         .then(notes => callback(res, 200, { items: notes, total: count }))
         .catch(err => callback(res, 400, { message: "Could not fetch the notes.", error: err }));

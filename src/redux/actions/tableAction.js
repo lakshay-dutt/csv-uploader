@@ -6,6 +6,7 @@ export const fetchTableAction = payload => dispatch => {
     payload: {
       labels: payload.labels,
       items: payload.items,
+      total: payload.total,
     },
   });
 };

@@ -7,10 +7,11 @@ import { fetchTable } from "./redux/helpers";
 import { fetchLabels } from "./util";
 function App({ table }) {
   useEffect(() => {
-    getAll().then(({ data }) => {
-      const labels = fetchLabels(data.items);
-      fetchTable({ labels, items: data.items });
-    });
+    (table.labels.length < 1 || table.items.length < 1) &&
+      getAll().then(({ data }) => {
+        const labels = fetchLabels(data.items);
+        fetchTable({ labels, items: data.items, total: data.total });
+      });
   }, []);
   return (
     <Fragment>
